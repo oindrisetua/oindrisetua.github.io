@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🐻 To-Do List</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #fff8f0, #e6d3c5);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      width: 350px;
+      text-align: center;
+    }
+
+    .bear {
+      width: 80px;
+      margin-bottom: 15px;
+    }
+
+    h2 {
+      color: #5e3c2c;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 2px solid #d2b48c;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #a9745f;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      background-color: #f7e6da;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #4b2e23;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    li.completed span {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .remove {
+      background: #d9534f;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+      transform: scale(1.2);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <img src="bear.jpg" alt="Cute Bear" class="bear" />
+    <h2>My To-Do List 🧸</h2>
+    <input type="text" id="taskInput" placeholder="What to do...">
+    <button onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');
+    const taskList = document.getElementById('taskList');
+
+    // Load from local storage on page load
+    window.onload = () => {
+      const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      savedTasks.forEach(task => renderTask(task.text, task.completed));
+    };
+
+    function addTask() {
+      const taskText = taskInput.value.trim();
+      if (taskText === '') return;
+      renderTask(taskText);
+      saveTask(taskText, false);
+      taskInput.value = '';
+    }
+
+    function renderTask(text, completed = false) {
+      const li = document.createElement('li');
+      if (completed) li.classList.add('completed');
+
+      li.innerHTML = `
+        <label>
+          <input type="checkbox" ${completed ? 'checked' : ''} onchange="toggleTask(this)">
+          <span>${text}</span>
+        </label>
+        <button class="remove" onclick="removeTask(this)">X</button>
+      `;
+      taskList.appendChild(li);
+    }
+
+    function removeTask(button) {
+      const li = button.parentElement;
+      li.remove();
+      updateLocalStorage();
+    }
+
+    function toggleTask(checkbox) {
+      const li = checkbox.closest('li');
+      li.classList.toggle('completed');
+      updateLocalStorage();
+    }
+
+    function saveTask(text, completed) {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.push({ text, completed });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function updateLocalStorage() {
+      const tasks = [];
+      document.querySelectorAll('#taskList li').forEach(li => {
+        const text = li.querySelector('span').innerText;
+        const completed = li.classList.contains('completed');
+        tasks.push({ text, completed });
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+  </script>
+
+</body>
+</html>
+
